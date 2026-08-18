@@ -1,74 +1,10 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4f8fb">
-  <title>担任用 朝の準備設定 | School Check-in Timer</title>
-  <link rel="stylesheet" href="css/teacher.css">
-</head>
-<body>
-  <main class="teacher-shell">
-    <header class="teacher-topbar">
-      <div class="teacher-brand">
-        <img src="assets/images/5小マスコット.png" alt="マスコット">
-        <div>
-          <p class="eyebrow">担任用コントロール</p>
-          <h1>今日の朝を整える</h1>
-          <p class="subcopy">必要なところだけ直して、クラスへ反映できます。</p>
-        </div>
-      </div>
-      <a class="student-link" href="index.html">児童画面を見る ↗</a>
-    </header>
-
-    <section class="summary-strip" aria-label="クラス設定概要">
-      <label>学級<input id="class-id" value="1-1" aria-label="学級"></label>
-      <label>開始<input id="start-time" type="time" value="08:15"></label>
-      <label>朝の会<input id="end-time" type="time" value="08:30"></label>
-      <label>表示
-        <select id="grade-mode">
-          <option value="low">低学年</option>
-          <option value="high">高学年</option>
-        </select>
-      </label>
-      <div class="clock-now"><span>現在</span><strong id="teacher-clock">--:--</strong></div>
-    </section>
-
-    <section class="work-grid">
-      <article class="editor-card">
-        <div class="section-head">
-          <div><p class="eyebrow">朝のチェック項目</p><h2>できるだけ少なく、分かりやすく</h2></div>
-          <button id="add-task" class="soft-button" type="button">＋ 項目を追加</button>
-        </div>
-
-        <div class="preset-row" aria-label="テンプレート">
-          <span>テンプレート</span>
-          <button type="button" data-preset="normal">いつもの朝</button>
-          <button type="button" data-preset="monday">月曜日</button>
-          <button type="button" data-preset="rainy">雨の日</button>
-          <button type="button" data-preset="assembly">集会の日</button>
-        </div>
-
-        <div id="teacher-task-list" class="teacher-task-list" aria-live="polite"></div>
-      </article>
-
-      <aside class="preview-card">
-        <div class="section-head compact"><div><p class="eyebrow">児童にはこう見えます</p><h2>プレビュー</h2></div></div>
-        <div class="mini-device">
-          <div class="mini-top"><span>1ねん1くみ</span><strong id="preview-time">8:15</strong></div>
-          <div class="mini-message">あさの じゅんび<br><b>できたら タッチ！</b></div>
-          <div id="preview-list" class="preview-list"></div>
-          <div class="mini-footer"><span>あさのかいまで</span><strong id="preview-countdown">あと 15ぷん</strong></div>
-        </div>
-        <div class="tip-box"><span>💡</span><p><strong>見た目も自動調整</strong><br>項目を増減しても、児童画面ではカードが整列します。</p></div>
-      </aside>
-    </section>
-
-    <footer class="publish-bar">
-      <div class="publish-state"><span class="state-dot"></span><div><strong id="save-status">変更はまだ反映されていません</strong><small id="server-status">校内LANサーバーを確認しています…</small></div></div>
-      <button id="publish-button" class="publish-button" type="button">クラスに反映</button>
-    </footer>
-  </main>
-  <script src="js/teacher.js"></script>
-</body>
-</html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f8fb"><title>担任用 朝の準備設定 | School Check-in Timer</title><link rel="stylesheet" href="css/teacher.css"></head>
+<body><main class="teacher-shell">
+<header class="teacher-topbar"><div class="teacher-brand"><img src="assets/images/5小マスコット.png" alt="マスコット"><div><p class="eyebrow">担任用コントロール</p><h1>今日の朝を整える</h1><p class="subcopy">必要なところだけ直して、クラスへ反映できます。</p></div></div><a class="student-link" href="index.html">児童画面を見る ↗</a></header>
+<section class="summary-strip" aria-label="クラス設定概要"><label>学級<input id="class-id" value="1-1" aria-label="学級"></label><label>開始<input id="start-time" type="time" value="08:15"></label><label>朝の会<input id="end-time" type="time" value="08:30"></label><label>表示<select id="grade-mode"><option value="low">低学年</option><option value="high">高学年</option></select></label><div class="clock-now"><span>現在</span><strong id="teacher-clock">--:--</strong></div></section>
+<section class="work-grid"><article class="editor-card"><div class="section-head"><div><p class="eyebrow">朝のチェック項目</p><h2>できるだけ少なく、分かりやすく</h2></div><button id="add-task" class="soft-button" type="button">＋ 項目を追加</button></div><div class="preset-row"><span>テンプレート</span><button type="button" data-preset="normal">いつもの朝</button><button type="button" data-preset="monday">月曜日</button><button type="button" data-preset="rainy">雨の日</button><button type="button" data-preset="assembly">集会の日</button></div><div id="teacher-task-list" class="teacher-task-list" aria-live="polite"></div></article>
+<aside class="preview-card"><div class="section-head compact"><div><p class="eyebrow">児童にはこう見えます</p><h2>プレビュー</h2></div></div><div class="mini-device"><div class="mini-top"><span>児童画面</span><strong id="preview-time">8:15</strong></div><div class="mini-message">あさの じゅんび<br><b>できたら タッチ！</b></div><div id="preview-list" class="preview-list"></div><div class="mini-footer"><span>あさのかいまで</span><strong id="preview-countdown">あと 15ぷん</strong></div></div><div class="tip-box"><span>💡</span><p><strong>見た目も自動調整</strong><br>項目を増減しても、児童画面ではカードが整列します。</p></div></aside></section>
+<section class="device-monitor" aria-label="タブレット反映状況"><div><p class="eyebrow">校内LAN 配信モニター</p><h2>タブレットへの反映状況</h2><p id="device-summary">接続状況を確認しています…</p></div><div id="device-list" class="device-list" aria-live="polite"></div></section>
+<footer class="publish-bar"><div class="publish-state"><span class="state-dot"></span><div><strong id="save-status">変更はまだ反映されていません</strong><small id="server-status">校内LANサーバーを確認しています…</small></div></div><button id="publish-button" class="publish-button" type="button">クラスに反映</button></footer>
+</main><script src="js/teacher.js"></script></body></html>
