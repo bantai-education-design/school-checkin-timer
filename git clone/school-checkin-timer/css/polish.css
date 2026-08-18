@@ -12,6 +12,17 @@ html[data-grade-mode="high"] .task-card{min-height:92px;border-radius:18px;grid-
 html[data-grade-mode="high"] .task-icon{width:50px;height:50px;border-radius:15px;font-size:1.55rem}
 html[data-grade-mode="high"] .task-label{font-size:1.05rem}
 html[data-grade-mode="high"] .timer-panel{border-radius:20px}
+
+/* 学年別の時計。低学年は針を読む学習にもつながる大きなアナログ、高学年は見通しを持ちやすいデジタル。 */
+html[data-grade-mode="low"] .digital-clock{display:none}
+html[data-grade-mode="low"] .analog-clock{width:86px;height:86px;border-width:6px}
+html[data-grade-mode="low"] .analog-clock .hand.hour{height:23px;width:5px;margin-left:-2.5px}
+html[data-grade-mode="low"] .analog-clock .hand.minute{height:31px;width:4px;margin-left:-2px}
+html[data-grade-mode="low"] .analog-clock .hand.second{height:34px}
+html[data-grade-mode="low"] .clock-card{min-width:245px;justify-content:space-between}
+html[data-grade-mode="high"] .analog-clock{display:none}
+html[data-grade-mode="high"] .digital-clock{display:block;font-size:clamp(2rem,3.4vw,3rem)}
+
 .setup-link{color:#4f7892;text-decoration:none;border-bottom:1px dotted currentColor}
 .celebration{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(19,49,72,.32);backdrop-filter:blur(9px);opacity:0;transition:opacity .18s ease}.celebration.show{opacity:1}.celebration[hidden]{display:none}.celebration-card{width:min(470px,100%);text-align:center;background:linear-gradient(160deg,#fff,#f1fff6 58%,#fff7d9);border:2px solid rgba(255,255,255,.95);border-radius:36px;padding:28px 28px 26px;box-shadow:0 28px 80px rgba(19,49,72,.28);transform:translateY(15px) scale(.97);transition:transform .2s ease}.celebration.show .celebration-card{transform:translateY(0) scale(1)}.celebration-card img{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 14px 18px rgba(43,112,88,.16))}.celebration-stars{margin:-4px 0 10px;color:#e7b72d;font-size:1.45rem;letter-spacing:.12em}.celebration-card strong{display:block;font-size:clamp(1.65rem,5vw,2.3rem);line-height:1.2}.celebration-card p{margin:10px 0 20px;color:#527087;font-weight:800;line-height:1.55}.celebration-card button{border:0;border-radius:999px;background:linear-gradient(135deg,#4fc27f,#319f62);color:#fff;padding:13px 30px;font-weight:900;font-size:1rem;box-shadow:0 9px 20px rgba(49,159,98,.24);cursor:pointer}
 
@@ -34,6 +45,7 @@ html[data-grade-mode="high"] .timer-panel{border-radius:20px}
   .app-shell{padding:16px 16px 28px}
   .topbar{flex-direction:column;align-items:stretch}
   .clock-card{width:100%;min-width:0;justify-content:space-between}
+  html[data-grade-mode="low"] .analog-clock{width:80px;height:80px}
   .speech-bubble{max-width:100%;padding:16px 20px}
   .weather-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .task-grid{grid-template-columns:1fr}
@@ -50,6 +62,7 @@ html[data-grade-mode="high"] .timer-panel{border-radius:20px}
   .welcome-card,.routine-card{padding:18px;border-radius:25px}
   .speech-bubble{padding:14px 16px;border-radius:22px 22px 22px 8px}
   .speech-bubble strong{font-size:clamp(1.55rem,9vw,2.1rem);line-height:1.25}
+  html[data-grade-mode="low"] .analog-clock{width:72px;height:72px}
   .weather{min-height:94px;padding:10px 6px}
   .weather span{font-size:1.8rem}
   .weather b{font-size:.98rem}
