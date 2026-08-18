@@ -1,0 +1,54 @@
+name: School Check-in Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - 'git clone/school-checkin-timer/**'
+      - '.github/workflows/smoke.yml'
+  push:
+    branches:
+      - feature/core-clock-task-sync-plan
+    paths:
+      - 'git clone/school-checkin-timer/**'
+      - '.github/workflows/smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: git clone/school-checkin-timer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Start LAN server
+        run: |
+          npm start > /tmp/school-checkin-server.log 2>&1 &
+          echo $! > /tmp/school-checkin-server.pid
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/school-checkin-server.log
+          exit 1
+
+      - name: Run smoke test
+        run: npm run test:smoke
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat /tmp/school-checkin-server.log || true
