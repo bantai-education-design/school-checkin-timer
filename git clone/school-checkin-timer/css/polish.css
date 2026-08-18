@@ -8,11 +8,59 @@ html[data-grade-mode="high"] .hero-mascot{height:220px;width:min(48%,260px);opac
 html[data-grade-mode="high"] .weather{min-height:88px;border-radius:18px;box-shadow:0 6px 18px rgba(31,73,96,.08)}
 html[data-grade-mode="high"] .weather span{font-size:1.7rem}
 html[data-grade-mode="high"] .task-grid{grid-template-columns:1fr}
-html[data-grade-mode="high"] .task-card{min-height:92px;border-radius:18px;grid-template-columns:54px 1fr 38px;padding:14px 18px}
+html[data-grade-mode="high"] .task-card{min-height:92px;border-radius:18px;grid-template-columns:54px minmax(0,1fr) 38px;padding:14px 18px}
 html[data-grade-mode="high"] .task-icon{width:50px;height:50px;border-radius:15px;font-size:1.55rem}
 html[data-grade-mode="high"] .task-label{font-size:1.05rem}
 html[data-grade-mode="high"] .timer-panel{border-radius:20px}
 .setup-link{color:#4f7892;text-decoration:none;border-bottom:1px dotted currentColor}
 .celebration{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(19,49,72,.32);backdrop-filter:blur(9px);opacity:0;transition:opacity .18s ease}.celebration.show{opacity:1}.celebration[hidden]{display:none}.celebration-card{width:min(470px,100%);text-align:center;background:linear-gradient(160deg,#fff,#f1fff6 58%,#fff7d9);border:2px solid rgba(255,255,255,.95);border-radius:36px;padding:28px 28px 26px;box-shadow:0 28px 80px rgba(19,49,72,.28);transform:translateY(15px) scale(.97);transition:transform .2s ease}.celebration.show .celebration-card{transform:translateY(0) scale(1)}.celebration-card img{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 14px 18px rgba(43,112,88,.16))}.celebration-stars{margin:-4px 0 10px;color:#e7b72d;font-size:1.45rem;letter-spacing:.12em}.celebration-card strong{display:block;font-size:clamp(1.65rem,5vw,2.3rem);line-height:1.2}.celebration-card p{margin:10px 0 20px;color:#527087;font-weight:800;line-height:1.55}.celebration-card button{border:0;border-radius:999px;background:linear-gradient(135deg,#4fc27f,#319f62);color:#fff;padding:13px 30px;font-weight:900;font-size:1rem;box-shadow:0 9px 20px rgba(49,159,98,.24);cursor:pointer}
-@media(max-width:680px){html[data-grade-mode="high"] .hero-grid{grid-template-columns:1fr}html[data-grade-mode="high"] .hero-mascot{height:180px}.celebration-card{border-radius:28px;padding:22px}.celebration-card img{width:120px;height:120px}}
+
+/* Text-safe layout: no labels may touch or escape a card edge. */
+.speech-bubble,.routine-head>div,.task-copy,.timer-copy,.timer-meta,.statusbar{min-width:0}
+.speech-kicker,#weather-title,#routine-kicker,#routine-title,.task-label,.task-copy small,.timer-copy span,.timer-copy strong,.timer-meta span,.statusbar span,.statusbar a{overflow-wrap:anywhere;word-break:normal}
+.task-label{padding-block:2px;line-height:1.4}
+.weather b{line-height:1.35;text-align:center;padding-inline:4px}
+.timer-copy strong{text-align:right}
+.statusbar{padding:0 18px 10px;flex-wrap:wrap;text-align:center;line-height:1.5}
+
+@media(max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .welcome-card,.routine-card{min-height:auto}
+  .welcome-card{padding-bottom:34px}
+  .routine-card{padding-bottom:34px}
+  html[data-grade-mode="high"] .hero-grid{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .app-shell{padding:16px 16px 28px}
+  .topbar{flex-direction:column;align-items:stretch}
+  .clock-card{width:100%;min-width:0;justify-content:space-between}
+  .speech-bubble{max-width:100%;padding:16px 20px}
+  .weather-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .task-grid{grid-template-columns:1fr}
+  .task-card,html[data-grade-mode="high"] .task-card{grid-template-columns:58px minmax(0,1fr) 38px;padding:15px 16px;min-height:104px}
+  .timer-copy{align-items:flex-start;flex-direction:column}
+  .timer-copy strong{text-align:left}
+  .timer-meta{font-size:.8rem;flex-wrap:wrap}
+  .statusbar{margin-top:16px;padding-bottom:18px}
+  html[data-grade-mode="high"] .hero-mascot{height:180px}
+  .celebration-card{border-radius:28px;padding:22px}.celebration-card img{width:120px;height:120px}
+}
+@media(max-width:430px){
+  .app-shell{padding:12px 12px 30px}
+  .welcome-card,.routine-card{padding:18px;border-radius:25px}
+  .speech-bubble{padding:14px 16px;border-radius:22px 22px 22px 8px}
+  .speech-bubble strong{font-size:clamp(1.55rem,9vw,2.1rem);line-height:1.25}
+  .weather{min-height:94px;padding:10px 6px}
+  .weather span{font-size:1.8rem}
+  .weather b{font-size:.98rem}
+  .routine-head{align-items:flex-start}
+  .routine-head h2{font-size:clamp(1.45rem,8vw,1.9rem);line-height:1.25}
+  .progress-pill{min-width:70px;height:50px;padding:0 13px;font-size:1.25rem}
+  .task-card,html[data-grade-mode="high"] .task-card{grid-template-columns:48px minmax(0,1fr) 32px;gap:10px;padding:14px 13px}
+  .task-icon{width:46px;height:46px;border-radius:14px;font-size:1.5rem}
+  .task-label{font-size:1rem;line-height:1.45}
+  .timer-panel{padding:18px 16px 16px}
+  .timer-copy strong{font-size:1.7rem;line-height:1.25}
+  .statusbar{font-size:.82rem;padding-inline:8px}
+}
 @media(prefers-reduced-motion:reduce){.celebration,.celebration-card,.weather,.task-card{transition:none!important}}
