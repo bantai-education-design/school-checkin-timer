@@ -1,0 +1,14 @@
+{
+  "classId": "1-1",
+  "date": "2026-08-18",
+  "version": 1,
+  "mode": "low",
+  "startTime": "08:15",
+  "endTime": "08:30",
+  "tasks": [
+    {"id":"contact-book","label":"れんらくちょう","icon":"📒","minutes":2,"enabled":true,"accent":"blue"},
+    {"id":"homework","label":"しゅくだい","icon":"📚","minutes":2,"enabled":true,"accent":"green"},
+    {"id":"health","label":"けんこう","icon":"🌡️","minutes":1,"enabled":true,"accent":"orange"},
+    {"id":"reading","label":"ほんを よむ","icon":"📖","minutes":10,"enabled":true,"accent":"purple"}
+  ]
+}
