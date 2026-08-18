@@ -2,6 +2,7 @@
   const weatherButtons=[...document.querySelectorAll('.weather')];
   const note=document.getElementById('high-note');
   const brand=document.getElementById('brand-message');
+  const mainTitle=document.querySelector('.brand h1');
   const weatherKicker=document.getElementById('weather-kicker');
   const weatherTitle=document.getElementById('weather-title');
   const routineKicker=document.getElementById('routine-kicker');
@@ -10,6 +11,8 @@
   const celebrationTitle=document.getElementById('celebration-title');
   const celebrationMessage=document.getElementById('celebration-message');
   const closeButton=document.getElementById('celebration-close');
+  const weatherLow=['はれ','くもり','あめ','かみなり'];
+  const weatherHigh=['晴れ','曇り','雨','雷'];
   let celebrated=false, noteTimer=null, mode='low';
 
   weatherButtons.forEach((button,index)=>{
@@ -31,11 +34,15 @@
   function applyMode(nextMode){
     mode=nextMode==='high'?'high':'low';
     document.documentElement.dataset.gradeMode=mode;
+    weatherButtons.forEach((button,index)=>{const label=button.querySelector('b');if(label)label.textContent=(mode==='high'?weatherHigh:weatherLow)[index];});
     if(mode==='high'){
+      if(mainTitle)mainTitle.textContent='朝のチェックイン';
       brand.textContent='おはよう。今日のスタートを自分で整えよう';
       weatherKicker.textContent='今の自分の状態を'; weatherTitle.textContent='天気で表すと？';
       routineKicker.textContent='朝の準備'; routineTitle.textContent='見通しをもって進めよう';
+      if(note)note.placeholder='今の気持ちや、先生に伝えたいこと（書かなくてもOK）';
     }else{
+      if(mainTitle)mainTitle.textContent='あさの チェックイン';
       brand.textContent='おはよう！ きょうも いいスタートを';
       weatherKicker.textContent='きょうの こころは'; weatherTitle.textContent='どんな てんき？';
       routineKicker.textContent='あさの じゅんび'; routineTitle.textContent='できたら タッチ！';
