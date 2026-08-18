@@ -6,9 +6,9 @@
   "startTime": "08:15",
   "endTime": "08:30",
   "tasks": [
-    {"id":"contact-book","label":"れんらくちょう","icon":"📒","minutes":2,"enabled":true,"accent":"blue"},
-    {"id":"homework","label":"しゅくだい","icon":"📚","minutes":2,"enabled":true,"accent":"green"},
-    {"id":"health","label":"けんこう","icon":"🌡️","minutes":1,"enabled":true,"accent":"orange"},
-    {"id":"reading","label":"ほんを よむ","icon":"📖","minutes":10,"enabled":true,"accent":"purple"}
+    {"id":"contact-book","label":"れんらくちょう","labelHigh":"連絡帳を出す","icon":"📒","minutes":2,"enabled":true,"accent":"blue"},
+    {"id":"homework","label":"しゅくだい","labelHigh":"宿題を提出する","icon":"📚","minutes":2,"enabled":true,"accent":"green"},
+    {"id":"health","label":"けんこう","labelHigh":"健康チェック","icon":"🌡️","minutes":1,"enabled":true,"accent":"orange"},
+    {"id":"reading","label":"ほんを よむ","labelHigh":"朝読書","icon":"📖","minutes":10,"enabled":true,"accent":"purple"}
   ]
 }
