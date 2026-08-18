@@ -15,6 +15,21 @@
     serverOffsetMs = Number.isFinite(offsetMs) ? offsetMs : 0;
   }
 
+  async function syncWithServer() {
+    const sentAt = Date.now();
+    try {
+      const response = await fetch('/api/time', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const receivedAt = Date.now();
+      const midpoint = sentAt + (receivedAt - sentAt) / 2;
+      setServerOffset(Number(data.now) - midpoint);
+      window.dispatchEvent(new CustomEvent('classroom-clock-synced', { detail: { offsetMs: serverOffsetMs } }));
+    } catch (_) {
+      // ローカルサーバー未起動時は端末時計で継続する。
+    }
+  }
+
   function renderClock() {
     const current = now();
     const hours = current.getHours();
@@ -32,7 +47,9 @@
   }
 
   renderClock();
+  syncWithServer();
   window.setInterval(renderClock, 1000);
+  window.setInterval(syncWithServer, 5 * 60 * 1000);
 
-  window.ClassroomClock = { now, setServerOffset };
+  window.ClassroomClock = { now, setServerOffset, syncWithServer };
 })();
