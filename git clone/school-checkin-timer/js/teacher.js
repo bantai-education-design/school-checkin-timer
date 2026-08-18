@@ -5,22 +5,16 @@
   const preview = document.getElementById('preview-list');
   const publishBar = document.querySelector('.publish-bar');
   const saveStatus = document.getElementById('save-status');
+  const serverStatus = document.getElementById('server-status');
+  const publishButton = document.getElementById('publish-button');
   const channel = 'BroadcastChannel' in window ? new BroadcastChannel(CHANNEL_NAME) : null;
 
-  const state = { config: null, dirty: false };
+  const state = { config: null, dirty: false, serverOnline: false };
   const presets = {
-    normal: [
-      ['contact-book','れんらくちょう','📒',2,'blue'],['homework','しゅくだい','📚',2,'green'],['health','けんこう','🌡️',1,'orange'],['reading','ほんを よむ','📖',10,'purple']
-    ],
-    monday: [
-      ['contact-book','れんらくちょう','📒',2,'blue'],['homework','しゅくだい','📚',2,'green'],['health','けんこう','🌡️',1,'orange'],['monday-set','月ようびの じゅんび','👜',3,'yellow'],['reading','ほんを よむ','📖',7,'purple']
-    ],
-    rainy: [
-      ['umbrella','かさを しまう','☂️',2,'blue'],['contact-book','れんらくちょう','📒',2,'green'],['homework','しゅくだい','📚',2,'orange'],['reading','しずかに ほんを よむ','📖',9,'purple']
-    ],
-    assembly: [
-      ['contact-book','れんらくちょう','📒',2,'blue'],['homework','しゅくだい','📚',2,'green'],['assembly','しゅうかいの じゅんび','🎒',3,'orange']
-    ]
+    normal: [['contact-book','れんらくちょう','📒',2,'blue'],['homework','しゅくだい','📚',2,'green'],['health','けんこう','🌡️',1,'orange'],['reading','ほんを よむ','📖',10,'purple']],
+    monday: [['contact-book','れんらくちょう','📒',2,'blue'],['homework','しゅくだい','📚',2,'green'],['health','けんこう','🌡️',1,'orange'],['monday-set','月ようびの じゅんび','👜',3,'yellow'],['reading','ほんを よむ','📖',7,'purple']],
+    rainy: [['umbrella','かさを しまう','☂️',2,'blue'],['contact-book','れんらくちょう','📒',2,'green'],['homework','しゅくだい','📚',2,'orange'],['reading','しずかに ほんを よむ','📖',9,'purple']],
+    assembly: [['contact-book','れんらくちょう','📒',2,'blue'],['homework','しゅくだい','📚',2,'green'],['assembly','しゅうかいの じゅんび','🎒',3,'orange']]
   };
 
   const id = () => `task-${Date.now()}-${Math.random().toString(16).slice(2,6)}`;
@@ -54,14 +48,10 @@
   }
 
   function escapeHtml(value) {
-    return String(value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    return String(value).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
   }
 
-  function updateTask(index, patch) {
-    Object.assign(state.config.tasks[index], patch);
-    markDirty(); render();
-  }
-
+  function updateTask(index, patch) { Object.assign(state.config.tasks[index], patch); markDirty(); render(); }
   function moveTask(index, delta) {
     const target = index + delta;
     if (target < 0 || target >= state.config.tasks.length) return;
@@ -100,22 +90,69 @@
     markDirty(); render();
   }
 
-  function publish() {
+  async function checkServer() {
+    try {
+      const response = await fetch('/api/health', { cache: 'no-store' });
+      if (!response.ok) throw new Error('health failed');
+      state.serverOnline = true;
+      serverStatus.textContent = '校内LANサーバー接続OK';
+      return true;
+    } catch (_) {
+      state.serverOnline = false;
+      serverStatus.textContent = 'サーバー未接続：このPC内だけで反映します';
+      return false;
+    }
+  }
+
+  async function publish() {
     syncMetaFromControls();
     state.config.version = Number(state.config.version || 0) + 1;
     state.config.date = new Date().toISOString().slice(0,10);
-    const payload = JSON.stringify(state.config);
-    localStorage.setItem(STORAGE_KEY,payload);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.config));
     channel?.postMessage({type:'config-published',config:state.config});
+
+    publishButton.disabled = true;
+    saveStatus.textContent = 'クラスへ反映しています…';
+    let connected = null;
+    try {
+      const response = await fetch(`/api/classes/${encodeURIComponent(state.config.classId)}/config`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state.config)
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      state.config = result.config || state.config;
+      connected = Number(result.connected || 0);
+      state.serverOnline = true;
+      serverStatus.textContent = `校内LANへ配信済み・接続 ${connected}台`;
+    } catch (error) {
+      console.warn('LAN publish fallback:', error);
+      state.serverOnline = false;
+      serverStatus.textContent = 'LAN配信できませんでした・このPC内には保存済み';
+    } finally {
+      publishButton.disabled = false;
+    }
+
     state.dirty = false;
     publishBar?.classList.add('saved');
-    saveStatus.textContent = `反映しました（設定 v${state.config.version}）`;
+    saveStatus.textContent = state.serverOnline
+      ? `反映しました（設定 v${state.config.version}）`
+      : `このPCに保存しました（設定 v${state.config.version}）`;
   }
 
   async function load() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try { state.config = JSON.parse(stored); } catch (_) {}
+    await checkServer();
+    const classId = document.getElementById('class-id').value.trim() || '1-1';
+    if (state.serverOnline) {
+      try {
+        const response = await fetch(`/api/classes/${encodeURIComponent(classId)}/today`, { cache: 'no-store' });
+        if (response.ok) state.config = await response.json();
+      } catch (_) {}
+    }
+    if (!state.config) {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) { try { state.config = JSON.parse(stored); } catch (_) {} }
     }
     if (!state.config) {
       const response = await fetch('data/tasks.json',{cache:'no-store'});
@@ -131,8 +168,9 @@
   document.getElementById('add-task').onclick = () => { state.config.tasks.push({id:id(),label:'あたらしい やること',icon:'⭐',minutes:2,enabled:true,accent:'blue'}); markDirty(); render(); };
   document.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => applyPreset(b.dataset.preset));
   ['class-id','start-time','end-time','grade-mode'].forEach(key => document.getElementById(key).addEventListener('input',()=>{markDirty();paintPreview();}));
-  document.getElementById('publish-button').onclick = publish;
+  publishButton.onclick = publish;
 
-  setInterval(()=>{document.getElementById('teacher-clock').textContent=new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());},1000);
+  const paintClock = () => { document.getElementById('teacher-clock').textContent = new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date()); };
+  paintClock(); setInterval(paintClock,1000); setInterval(checkServer,30000);
   load().catch(err => { console.error(err); saveStatus.textContent='設定を読み込めませんでした'; });
 })();
