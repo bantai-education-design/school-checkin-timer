@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf8ff">
+  <title>タブレット初期設定 | 朝のチェックイン</title>
+  <link rel="stylesheet" href="css/setup.css">
+</head>
+<body>
+  <main class="setup-shell">
+    <section class="setup-card">
+      <div class="setup-visual">
+        <img src="assets/images/5小マスコット.png" alt="朝のチェックイン マスコット">
+        <p class="eyebrow">はじめに 1かいだけ</p>
+        <h1>このタブレットを<br>クラスにつなげます</h1>
+        <p>一度設定すれば、明日からは自動で同じクラスにつながります。</p>
+      </div>
+      <form id="device-form" class="setup-form">
+        <div class="step-number">1</div>
+        <label>学年
+          <select id="grade" required>
+            <option value="">えらぶ</option>
+            <option value="1">1年</option><option value="2">2年</option><option value="3">3年</option>
+            <option value="4">4年</option><option value="5">5年</option><option value="6">6年</option>
+          </select>
+        </label>
+        <div class="step-number">2</div>
+        <label>組
+          <select id="class-number" required>
+            <option value="">えらぶ</option>
+            <option value="1">1組</option><option value="2">2組</option><option value="3">3組</option>
+            <option value="4">4組</option><option value="5">5組</option><option value="6">6組</option>
+          </select>
+        </label>
+        <div class="step-number">3</div>
+        <label>出席番号
+          <input id="seat-number" type="number" inputmode="numeric" min="1" max="60" placeholder="例：7" required>
+        </label>
+        <div class="device-preview" id="device-preview">
+          <span>このタブレット</span>
+          <strong>学年・組・番号を選んでください</strong>
+        </div>
+        <button class="save-button" type="submit">この設定ではじめる</button>
+        <p class="setup-note">設定はこの端末のブラウザ内だけに保存されます。児童が毎朝入力する必要はありません。</p>
+      </form>
+    </section>
+  </main>
+  <script src="js/device-setup.js"></script>
+</body>
+</html>
