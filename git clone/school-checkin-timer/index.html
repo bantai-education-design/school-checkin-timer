@@ -53,22 +53,11 @@
             <p class="eyebrow">あさの じゅんび</p>
             <h2>できたら タッチ！</h2>
           </div>
-          <div class="progress-pill"><span id="task-done">0</span>/<span id="task-total">4</span></div>
+          <div class="progress-pill"><span id="task-done">0</span>/<span id="task-total">0</span></div>
         </div>
 
-        <div class="task-grid" id="task-grid">
-          <button class="task-card" type="button" data-task>
-            <span class="task-icon">📒</span><span class="task-label">れんらくちょう</span><span class="task-check">✓</span>
-          </button>
-          <button class="task-card" type="button" data-task>
-            <span class="task-icon">📚</span><span class="task-label">しゅくだい</span><span class="task-check">✓</span>
-          </button>
-          <button class="task-card" type="button" data-task>
-            <span class="task-icon">🌡️</span><span class="task-label">けんこう</span><span class="task-check">✓</span>
-          </button>
-          <button class="task-card" type="button" data-task>
-            <span class="task-icon">📖</span><span class="task-label">ほんを よむ</span><span class="task-check">✓</span>
-          </button>
+        <div class="task-grid" id="task-grid" aria-live="polite">
+          <div class="task-loading">きょうの じゅんびを よみこみちゅう…</div>
         </div>
 
         <section class="timer-panel" aria-label="朝の会までの残り時間">
@@ -77,7 +66,7 @@
             <strong id="countdown">あと --ぷん</strong>
           </div>
           <div class="timer-track" aria-hidden="true"><div class="timer-fill" id="timer-fill"></div></div>
-          <div class="timer-meta"><span id="start-time-label">8:15 スタート</span><span id="end-time-label">8:30 あさのかい</span></div>
+          <div class="timer-meta"><span id="start-time-label">--:-- スタート</span><span id="end-time-label">--:-- あさのかい</span></div>
         </section>
       </article>
     </section>
@@ -92,6 +81,7 @@
 
   <script src="js/clock.js"></script>
   <script src="js/timer.js"></script>
+  <script src="js/tasks.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
