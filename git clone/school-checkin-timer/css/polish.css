@@ -13,6 +13,19 @@ html[data-grade-mode="high"] .task-icon{width:50px;height:50px;border-radius:15p
 html[data-grade-mode="high"] .task-label{font-size:1.05rem}
 html[data-grade-mode="high"] .timer-panel{border-radius:20px}
 
+/* 低学年は「心の天気」を主役にする。絵を大きく、文字も指で選びやすいサイズに。 */
+html[data-grade-mode="low"] .weather-buttons{gap:14px}
+html[data-grade-mode="low"] .weather{min-height:142px;padding:16px 8px;border-radius:28px}
+html[data-grade-mode="low"] .weather span{font-size:3.35rem;line-height:1.05}
+html[data-grade-mode="low"] .weather b{font-size:1.2rem}
+
+/* 担任が項目を増やしても破綻しない。5項目以上は児童画面内で安全に縦スクロール。 */
+.task-grid{align-content:start}
+.task-grid.task-grid-many{max-height:360px;overflow-y:auto;overscroll-behavior:contain;padding:3px 7px 8px 3px;scrollbar-gutter:stable}
+.task-grid.task-grid-many::-webkit-scrollbar{width:10px}
+.task-grid.task-grid-many::-webkit-scrollbar-thumb{background:#bfd7e5;border-radius:999px;border:2px solid #f7fbfd}
+.task-grid.task-grid-many::-webkit-scrollbar-track{background:#eef6fa;border-radius:999px}
+
 /* 学年別の時計。低学年は針を読む学習にもつながる大きなアナログ、高学年は見通しを持ちやすいデジタル。 */
 html[data-grade-mode="low"] .digital-clock{display:none}
 html[data-grade-mode="low"] .analog-clock{width:86px;height:86px;border-width:6px}
@@ -40,6 +53,7 @@ html[data-grade-mode="high"] .digital-clock{display:block;font-size:clamp(2rem,3
   .welcome-card{padding-bottom:34px}
   .routine-card{padding-bottom:34px}
   html[data-grade-mode="high"] .hero-grid{grid-template-columns:1fr}
+  .task-grid.task-grid-many{max-height:430px}
 }
 @media(max-width:760px){
   .app-shell{padding:16px 16px 28px}
@@ -48,7 +62,10 @@ html[data-grade-mode="high"] .digital-clock{display:block;font-size:clamp(2rem,3
   html[data-grade-mode="low"] .analog-clock{width:80px;height:80px}
   .speech-bubble{max-width:100%;padding:16px 20px}
   .weather-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  html[data-grade-mode="low"] .weather{min-height:132px}
+  html[data-grade-mode="low"] .weather span{font-size:3.15rem}
   .task-grid{grid-template-columns:1fr}
+  .task-grid.task-grid-many{max-height:460px}
   .task-card,html[data-grade-mode="high"] .task-card{grid-template-columns:58px minmax(0,1fr) 38px;padding:15px 16px;min-height:104px}
   .timer-copy{align-items:flex-start;flex-direction:column}
   .timer-copy strong{text-align:left}
@@ -64,11 +81,13 @@ html[data-grade-mode="high"] .digital-clock{display:block;font-size:clamp(2rem,3
   .speech-bubble strong{font-size:clamp(1.55rem,9vw,2.1rem);line-height:1.25}
   html[data-grade-mode="low"] .analog-clock{width:72px;height:72px}
   .weather{min-height:94px;padding:10px 6px}
-  .weather span{font-size:1.8rem}
+  html[data-grade-mode="low"] .weather{min-height:122px;padding:12px 6px}
+  html[data-grade-mode="low"] .weather span{font-size:2.85rem}
   .weather b{font-size:.98rem}
   .routine-head{align-items:flex-start}
   .routine-head h2{font-size:clamp(1.45rem,8vw,1.9rem);line-height:1.25}
   .progress-pill{min-width:70px;height:50px;padding:0 13px;font-size:1.25rem}
+  .task-grid.task-grid-many{max-height:430px}
   .task-card,html[data-grade-mode="high"] .task-card{grid-template-columns:48px minmax(0,1fr) 32px;gap:10px;padding:14px 13px}
   .task-icon{width:46px;height:46px;border-radius:14px;font-size:1.5rem}
   .task-label{font-size:1rem;line-height:1.45}
