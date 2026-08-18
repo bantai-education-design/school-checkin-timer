@@ -85,7 +85,7 @@ function waitFor(socket, predicate, timeout = 5000) {
   assert(published.config.version === next.version, 'published version mismatch');
 
   socket.send(JSON.stringify({ type: 'config-ack', version: next.version, deviceId }));
-  socket.send(JSON.stringify({ type: 'student-state', deviceId, weather: 'cloudy', done: 1, total: 2, memo: '少し眠い' }));
+  socket.send(JSON.stringify({ type: 'student-state', deviceId, weather: 'cloudy', done: 1, total: 2, note: '少し眠い' }));
   await new Promise(resolve => setTimeout(resolve, 250));
 
   const devices = await getJson(`/api/classes/${classId}/devices`);
@@ -98,7 +98,7 @@ function waitFor(socket, predicate, timeout = 5000) {
   assert(student, 'student state not listed');
   assert(student.weather === 'cloudy', 'weather not recorded');
   assert(student.done === 1 && student.total === 2, 'task progress not recorded');
-  assert(student.memo === '少し眠い', 'memo not recorded');
+  assert(student.note === '少し眠い', 'note not recorded');
 
   socket.close();
   console.log('Smoke test passed: HTTP, WebSocket, config sync, ACK, dashboard state');
