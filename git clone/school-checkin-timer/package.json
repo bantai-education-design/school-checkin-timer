@@ -5,7 +5,8 @@
   "description": "School LAN morning check-in and task timer",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "test:smoke": "node scripts/smoke-test.js"
   },
   "engines": {
     "node": ">=20"
