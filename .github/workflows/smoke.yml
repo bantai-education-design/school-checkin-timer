@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Start LAN server
         run: |
           npm start > /tmp/school-checkin-server.log 2>&1 &
@@ -48,6 +51,17 @@ jobs:
 
       - name: Run smoke test
         run: npm run test:smoke
+
+      - name: Run responsive visual check
+        run: npm run test:visual
+
+      - name: Upload visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-checkin-visual-screenshots
+          path: git clone/school-checkin-timer/artifacts/visual/*.png
+          if-no-files-found: ignore
 
       - name: Show server log on failure
         if: failure()
