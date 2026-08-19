@@ -6,6 +6,7 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
+    "preflight": "node scripts/preflight.js",
     "test:smoke": "node scripts/smoke-test.js",
     "test:visual": "node scripts/visual-check.js"
   },
