@@ -5,11 +5,11 @@
   const channel='BroadcastChannel'in window?new BroadcastChannel(CHANNEL_NAME):null;
   const safe=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c));
   const ARTWORK={
-    'contact-book':'assets/images/tasks/contact-book.png',
-    'desk':'assets/images/tasks/desk.png',
-    'reading':'assets/images/tasks/reading.png',
-    'health':'assets/images/tasks/temperature.png',
-    'submission':'assets/images/tasks/submission.png'
+    'contact-book':'assets/images/tasks/contact-book.svg',
+    'desk':'assets/images/tasks/desk.svg',
+    'reading':'assets/images/tasks/reading.svg',
+    'health':'assets/images/tasks/temperature.svg',
+    'submission':'assets/images/tasks/submission.svg'
   };
   function profile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');}catch(_){return null;}}
   function deviceId(){const p=profile();if(p?.deviceId){localStorage.setItem(DEVICE_KEY,p.deviceId);return p.deviceId;}let v=localStorage.getItem(DEVICE_KEY);if(!v){v=`tablet-${Math.random().toString(36).slice(2,8)}`;localStorage.setItem(DEVICE_KEY,v);}return v;}
