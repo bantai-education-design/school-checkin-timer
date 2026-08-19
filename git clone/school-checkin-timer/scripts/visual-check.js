@@ -55,19 +55,37 @@ const cases = [
     await page.goto(`${base}${c.url}`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(450);
 
-    const metrics = await page.evaluate(() => ({
-      innerWidth: window.innerWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-      bodyScrollWidth: document.body.scrollWidth,
-      textOverflow: [...document.querySelectorAll('.task-label,.weather b,.timer-copy strong,.statusbar,.mini-message,.preview-item b,.home-link strong,.home-link small,nav a')]
-        .filter(el => el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).whiteSpace === 'nowrap')
-        .map(el => ({ text: el.textContent.trim(), scrollWidth: el.scrollWidth, clientWidth: el.clientWidth }))
-    }));
+    const metrics = await page.evaluate(() => {
+      const intersects = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2;
+      const taskIssues = [];
+      document.querySelectorAll('.task-card').forEach(card => {
+        const image = card.querySelector('.task-art img');
+        const label = card.querySelector('.task-label');
+        const check = card.querySelector('.task-check');
+        if (image && (!image.complete || image.naturalWidth <= 0)) taskIssues.push({ type: 'image-load', task: label?.textContent?.trim() || '' });
+        const parts = [image, label, check].filter(Boolean).map(el => ({ el, rect: el.getBoundingClientRect() })).filter(x => x.rect.width > 0 && x.rect.height > 0);
+        for (let i = 0; i < parts.length; i++) {
+          for (let j = i + 1; j < parts.length; j++) {
+            if (intersects(parts[i].rect, parts[j].rect)) taskIssues.push({ type: 'overlap', task: label?.textContent?.trim() || '', a: parts[i].el.className, b: parts[j].el.className });
+          }
+        }
+      });
+      return {
+        innerWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        bodyScrollWidth: document.body.scrollWidth,
+        textOverflow: [...document.querySelectorAll('.task-label,.weather b,.timer-copy strong,.statusbar,.mini-message,.preview-item b,.home-link strong,.home-link small,nav a')]
+          .filter(el => el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).whiteSpace === 'nowrap')
+          .map(el => ({ text: el.textContent.trim(), scrollWidth: el.scrollWidth, clientWidth: el.clientWidth })),
+        taskIssues
+      };
+    });
 
     if (metrics.scrollWidth > metrics.innerWidth + 2 || metrics.bodyScrollWidth > metrics.innerWidth + 2) {
       failures.push(`${c.name}: horizontal overflow ${Math.max(metrics.scrollWidth, metrics.bodyScrollWidth)} > ${metrics.innerWidth}`);
     }
     if (metrics.textOverflow.length) failures.push(`${c.name}: nowrap text overflow ${JSON.stringify(metrics.textOverflow)}`);
+    if (metrics.taskIssues.length) failures.push(`${c.name}: task artwork/layout issues ${JSON.stringify(metrics.taskIssues)}`);
     if (pageErrors.length) failures.push(`${c.name}: page errors ${pageErrors.join(' | ')}`);
 
     await page.screenshot({ path: path.join(outDir, `${c.name}.png`), fullPage: true });
