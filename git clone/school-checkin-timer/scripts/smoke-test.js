@@ -19,6 +19,16 @@ async function getText(path) {
   return response.text();
 }
 
+async function postJson(path, body) {
+  const response = await fetch(`${base}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  assert(response.ok, `${path} returned ${response.status}`);
+  return response.json();
+}
+
 function openSocket(url) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(url);
@@ -50,13 +60,14 @@ function waitFor(socket, predicate, timeout = 5000) {
   const time = await getJson('/api/time');
   assert(Number.isFinite(time.now), 'server time is missing');
 
-  for (const page of ['/', '/teacher.html', '/dashboard.html', '/setup.html']) {
+  for (const page of ['/', '/teacher.html', '/attendance.html', '/monthly-attendance.html', '/term-attendance.html', '/dashboard.html', '/school-calendar.html', '/term-settings.html', '/preview.html', '/setup.html']) {
     const html = await getText(page);
     assert(/<!DOCTYPE html>|<html/i.test(html), `${page} is not HTML`);
   }
 
   const classId = '6-3';
   const deviceId = '6-3-07';
+  const studentKey = 'smoke-student-07';
   const socket = await openSocket(`${wsBase}/ws?classId=${classId}&deviceId=${deviceId}`);
   const hello = await waitFor(socket, message => message.type === 'hello');
   assert(hello.classId === classId, 'hello classId mismatch');
@@ -68,6 +79,9 @@ function waitFor(socket, predicate, timeout = 5000) {
     version: Number(current.version || 0) + 1,
     startTime: '08:10',
     endTime: '08:25',
+    roster: [
+      { number: 7, name: 'テスト児童', deviceId, studentKey }
+    ],
     tasks: [
       { id: 'submit', label: '提出物', icon: '📮', minutes: 2, enabled: true, accent: 'blue' },
       { id: 'reading', label: '朝読書', icon: '📖', minutes: 10, enabled: true, accent: 'green' }
@@ -85,7 +99,7 @@ function waitFor(socket, predicate, timeout = 5000) {
   assert(published.config.version === next.version, 'published version mismatch');
 
   socket.send(JSON.stringify({ type: 'config-ack', version: next.version, deviceId }));
-  socket.send(JSON.stringify({ type: 'student-state', deviceId, weather: 'cloudy', done: 1, total: 2, note: '少し眠い' }));
+  socket.send(JSON.stringify({ type: 'student-state', deviceId, weather: 'cloudy', done: 2, total: 2, finished: true, note: '少し眠い' }));
   await new Promise(resolve => setTimeout(resolve, 250));
 
   const devices = await getJson(`/api/classes/${classId}/devices`);
@@ -97,11 +111,41 @@ function waitFor(socket, predicate, timeout = 5000) {
   const student = dashboard.students.find(item => item.deviceId === deviceId);
   assert(student, 'student state not listed');
   assert(student.weather === 'cloudy', 'weather not recorded');
-  assert(student.done === 1 && student.total === 2, 'task progress not recorded');
+  assert(student.done === 2 && student.total === 2, 'task progress not recorded');
   assert(student.note === '少し眠い', 'note not recorded');
 
+  const date = new Date().toISOString().slice(0, 10);
+  const attendanceBefore = await getJson(`/api/classes/${classId}/attendance/${date}`);
+  const attendanceStudent = attendanceBefore.students.find(item => item.studentKey === studentKey);
+  assert(attendanceStudent, 'attendance roster student not listed');
+  assert(attendanceStudent.weather === 'cloudy', 'live mood should be visible for teacher context');
+
+  await postJson(`/api/classes/${classId}/attendance/${date}`, {
+    studentKey,
+    status: 'present',
+    health: 'watch',
+    healthMemo: '朝は少し眠そう',
+    reason: ''
+  });
+  const attendanceAfter = await getJson(`/api/classes/${classId}/attendance/${date}`);
+  const savedAttendance = attendanceAfter.students.find(item => item.studentKey === studentKey);
+  assert(savedAttendance.status === 'present', 'attendance status not saved');
+  assert(savedAttendance.health === 'watch', 'health observation not saved');
+  assert(savedAttendance.weather === 'cloudy', 'saving health must not overwrite mood');
+
+  const analytics = await getJson(`/api/classes/${classId}/analytics`);
+  const moodDay = analytics.days.find(item => item.date === date);
+  assert(moodDay && moodDay.cloudy >= 1, 'mood analytics lost after attendance health update');
+
+  const schoolYear = Number(date.slice(0, 4));
+  const terms = await getJson(`/api/classes/${classId}/terms/${schoolYear}`);
+  assert(Array.isArray(terms.terms) && terms.terms.length >= 1, 'term settings API unavailable');
+  const month = date.slice(0, 7);
+  const calendar = await getJson(`/api/classes/${classId}/calendar/${month}`);
+  assert(calendar.days && typeof calendar.days === 'object', 'school calendar API unavailable');
+
   socket.close();
-  console.log('Smoke test passed: HTTP, WebSocket, config sync, ACK, dashboard state');
+  console.log('Smoke test passed: pages, HTTP, WebSocket, config sync, attendance/health, mood separation, calendar/term APIs');
 })().catch(error => {
   console.error(error.stack || error);
   process.exit(1);
