@@ -1,0 +1,33 @@
+@media (max-width: 820px) {
+  .dash-shell,
+  .trend-card,
+  .classroom-card,
+  .summary-grid,
+  .weather-strip,
+  .student-grid,
+  .weekday-grid,
+  .trend-grid,
+  .year-mood,
+  .month-summary,
+  .event-entry,
+  .month-day-list,
+  .section-head {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .trend-card input,
+  .trend-card select,
+  .event-entry input,
+  .event-entry button,
+  .dash-controls input,
+  .dash-controls button {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .month-day-list > div {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
