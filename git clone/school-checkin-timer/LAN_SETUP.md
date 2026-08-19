@@ -6,9 +6,10 @@
 
 ```bash
 npm install
+npm run preflight
 ```
 
-Node.js 20 以上を使用します。
+Node.js 20 以上を使用します。`npm run preflight` は、Node.jsバージョン、主要画面・正式SVG素材、保存フォルダへの書込み、主要npmスクリプト、TCP 8080番の利用可否をまとめて確認する導入前セルフチェックです。エラーが出た場合は `npm start` より先にその項目を確認します。
 
 ## 2. 毎日の起動
 
