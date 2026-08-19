@@ -65,6 +65,17 @@ function waitFor(socket, predicate, timeout = 5000) {
     assert(/<!DOCTYPE html>|<html/i.test(html), `${page} is not HTML`);
   }
 
+  for (const asset of [
+    '/assets/images/tasks/contact-book.svg',
+    '/assets/images/tasks/desk.svg',
+    '/assets/images/tasks/reading.svg',
+    '/assets/images/tasks/temperature.svg',
+    '/assets/images/tasks/submission.svg'
+  ]) {
+    const svg = await getText(asset);
+    assert(/<svg[\s>]/i.test(svg), `${asset} is not SVG artwork`);
+  }
+
   const classId = '6-3';
   const deviceId = '6-3-07';
   const studentKey = 'smoke-student-07';
@@ -145,7 +156,7 @@ function waitFor(socket, predicate, timeout = 5000) {
   assert(calendar.days && typeof calendar.days === 'object', 'school calendar API unavailable');
 
   socket.close();
-  console.log('Smoke test passed: pages, HTTP, WebSocket, config sync, attendance/health, mood separation, calendar/term APIs');
+  console.log('Smoke test passed: pages, formal task artwork, HTTP, WebSocket, config sync, attendance/health, mood separation, calendar/term APIs');
 })().catch(error => {
   console.error(error.stack || error);
   process.exit(1);
