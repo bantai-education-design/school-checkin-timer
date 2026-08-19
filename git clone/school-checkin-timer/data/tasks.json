@@ -1,0 +1,15 @@
+{
+  "classId": "1-1",
+  "date": "2026-08-19",
+  "version": 1,
+  "mode": "low",
+  "startTime": "08:15",
+  "endTime": "08:30",
+  "tasks": [
+    {"id":"contact-book","label":"れんらくちょうを だす","labelHigh":"連絡帳を出す","helper":"せんせいに みせる","helperHigh":"先生に見せる","icon":"📒","minutes":2,"enabled":true,"accent":"blue"},
+    {"id":"desk","label":"つくえの うえを かたづける","labelHigh":"机の上を整える","helper":"きれいに する","helperHigh":"学習の準備を整える","icon":"🧹","minutes":2,"enabled":true,"accent":"green"},
+    {"id":"reading","label":"ほんを よむ","labelHigh":"朝読書","helper":"あさの どくしょ","helperHigh":"静かに読書を始める","icon":"📖","minutes":7,"enabled":true,"accent":"purple"},
+    {"id":"health","label":"たいおんを はかる","labelHigh":"体温・健康チェック","helper":"たいおんを かくにん","helperHigh":"体調を確認する","icon":"🌡️","minutes":1,"enabled":true,"accent":"orange"},
+    {"id":"submission","label":"ていしゅつぶつを だす","labelHigh":"提出物を出す","helper":"わすれずに だす","helperHigh":"提出忘れがないか確認","icon":"📮","minutes":2,"enabled":true,"accent":"yellow"}
+  ]
+}
