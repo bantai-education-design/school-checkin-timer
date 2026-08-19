@@ -1,1 +1,223 @@
-(()=>{const cls=document.getElementById('ledger-class'),month=document.getElementById('ledger-month'),status=document.getElementById('ledger-status'),table=document.getElementById('ledger-table'),reason=document.getElementById('reason-totals'),healthRoot=document.getElementById('health-totals');const symbols={present:'○',unconfirmed:'?',sick:'病',accident:'事',late:'遅',early:'早',suspended:'停'},labels={present:'出席',unconfirmed:'未確認',sick:'病欠',accident:'事故欠',late:'遅刻',early:'早退',suspended:'出席停止等'},healthLabels={ok:'健康 ○',watch:'要観察',nurse:'保健室',unwell:'体調不良',other:'その他'},keys=['present','sick','accident','late','early','suspended','unconfirmed'];function normalizeCalendar(data,m){if(data?.calendar&&Object.keys(data.calendar).length)return data.calendar;const c={};for(const d of data?.schoolDates||[])c[d]={type:'school',reason:'',source:'server'};if(Object.keys(c).length)return c;const[y,mo]=m.split('-').map(Number),last=new Date(y,mo,0).getDate();for(let d=1;d<=last;d++){const dt=new Date(y,mo-1,d),iso=`${m}-${String(d).padStart(2,'0')}`;c[iso]={type:dt.getDay()===0||dt.getDay()===6?'off':'school',reason:dt.getDay()===0||dt.getDay()===6?'土日':'',source:'auto'}}return c}function summarize(data){const days={};for(const d of data.dates||[])days[d]=(data.days[d]||[]);return window.AttendanceModel.summarizeMonth(days)}function healthSummary(data){const h={ok:0,watch:0,nurse:0,unwell:0,other:0};for(const d of data.dates||[])for(const r of data.days[d]||[]){const k=healthLabels[r.health]?r.health:'ok';h[k]++}return h}function resetSummary(){['m-days','m-present','m-absent','m-sick','m-accident','m-late','m-early'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0'});reason.innerHTML='';if(healthRoot)healthRoot.innerHTML=''}function paint(data,m){const cal=normalizeCalendar(data,m),schoolDates=Object.keys(cal).filter(d=>cal[d]?.type!=='off').sort(),confirmed=new Set(data.dates||[]),sum=summarize(data),health=healthSummary(data),dates=schoolDates,roster=data.roster||[],head=table.tHead||table.createTHead(),body=table.tBodies[0]||table.createTBody(),foot=table.tFoot||table.createTFoot();head.innerHTML='';body.innerHTML='';foot.innerHTML='';if(!dates.length){body.innerHTML='<tr><td class="empty">この月には授業日が設定されていません。</td></tr>';resetSummary();return}const tr=document.createElement('tr');tr.innerHTML='<th class="num-col">番号</th><th class="sticky name-col">氏名</th>'+dates.map(d=>{const x=new Date(`${d}T12:00:00`),ok=confirmed.has(d),v=cal[d]||{},sp=v.type==='special',src=v.source==='c4th'?'C4th':v.source==='teacher'?'先生修正':'自動';return `<th class="day-col${ok?'':' pending'}" title="${ok?'確認済み':'未確認'} / ${v.reason||src}">${x.getDate()}<br><small>${'日月火水木金土'[x.getDay()]}${sp?'★':''}</small></th>`}).join('')+keys.map(k=>`<th class="total-col">${labels[k]}</th>`).join('');head.appendChild(tr);const rowMap=new Map();roster.forEach(s=>rowMap.set(s.studentKey,{student:s,records:[]}));(data.dates||[]).forEach(d=>(data.days[d]||[]).forEach(r=>{if(rowMap.has(r.studentKey))rowMap.get(r.studentKey).records.push({date:d,...r})}));[...rowMap.values()].sort((a,b)=>(a.student.number||999)-(b.student.number||999)).forEach(({student,records})=>{const byDate=new Map(records.map(r=>[r.date,r])),tot=window.AttendanceModel.summarizeStudent(records),row=document.createElement('tr');row.innerHTML=`<td>${student.number??''}</td><td class="sticky name-col">${student.name||'氏名未登録'}</td>`+dates.map(d=>{if(!confirmed.has(d))return '<td class="status-unconfirmed" title="授業日・未確認">—</td>';const r=byDate.get(d),k=r?.status||'unconfirmed';return `<td class="status-${k}" title="${labels[k]} / ${healthLabels[r?.health]||'健康未設定'}">${symbols[k]}</td>`}).join('')+keys.map(k=>`<td class="total-col">${tot[k]||0}</td>`).join('');body.appendChild(row)});const presentRow=document.createElement('tr');presentRow.innerHTML='<th colspan="2">日別 出席</th>'+dates.map(d=>`<td>${confirmed.has(d)?sum.dayTotals[d]?.present||0:'—'}</td>`).join('')+keys.map(k=>`<td rowspan="2">${sum.grand[k]||0}</td>`).join('');foot.appendChild(presentRow);const absentRow=document.createElement('tr');absentRow.innerHTML='<th colspan="2">日別 欠席</th>'+dates.map(d=>{if(!confirmed.has(d))return '<td>—</td>';const t=sum.dayTotals[d]||{};return `<td title="病欠 ${t.sick||0}・事故欠 ${t.accident||0}">${t.absence||0}</td>`}).join('');foot.appendChild(absentRow);document.getElementById('m-days').textContent=dates.length;document.getElementById('m-present').textContent=sum.grand.present||0;document.getElementById('m-absent').textContent=sum.grand.absence||0;document.getElementById('m-sick').textContent=sum.grand.sick||0;document.getElementById('m-accident').textContent=sum.grand.accident||0;document.getElementById('m-late').textContent=sum.grand.late||0;document.getElementById('m-early').textContent=sum.grand.early||0;reason.innerHTML=`<article class="reason-main"><span>欠席 合計</span><strong>${sum.grand.absence||0}</strong><small>病欠＋事故欠</small></article><article><span>授業日</span><strong>${dates.length}</strong><small>学校暦基準</small></article><article><span>確認済み</span><strong>${confirmed.size}</strong><small>日</small></article><article><span>未確認授業日</span><strong>${dates.filter(d=>!confirmed.has(d)).length}</strong><small>日</small></article>`+keys.map(k=>`<article><span>${labels[k]}</span><strong>${sum.grand[k]||0}</strong></article>`).join('');if(healthRoot)healthRoot.innerHTML=Object.entries(healthLabels).map(([k,v])=>`<article${['watch','nurse','unwell'].includes(k)?' class="reason-main"':''}><span>${v}</span><strong>${health[k]||0}</strong><small>延べ件数</small></article>`).join('')}async function refresh(){status.textContent='集計しています…';const id=cls.value.trim()||'1-1',m=month.value;try{const r=await fetch(`/api/classes/${encodeURIComponent(id)}/attendance/month/${m}`,{cache:'no-store'});if(!r.ok)throw new Error('attendance fetch failed');const data=await r.json();paint(data,m);const cal=normalizeCalendar(data,m),school=Object.keys(cal).filter(d=>cal[d]?.type!=='off').length;status.textContent=`授業日 ${school}日 ／ 出席・健康確認済み ${data.dates?.length||0}日`}catch(_){status.textContent='校内LANサーバーに接続できません'}}const now=new Date();month.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;document.getElementById('ledger-reload').onclick=refresh;cls.onchange=refresh;month.onchange=refresh;refresh()})();
+(() => {
+  const cls = document.getElementById('ledger-class');
+  const month = document.getElementById('ledger-month');
+  const status = document.getElementById('ledger-status');
+  const table = document.getElementById('ledger-table');
+  const reason = document.getElementById('reason-totals');
+  const healthRoot = document.getElementById('health-totals');
+
+  const symbols = {
+    present: '○',
+    unconfirmed: '?',
+    sick: '病',
+    accident: '事',
+    late: '遅',
+    early: '早',
+    suspended: '停'
+  };
+
+  const labels = {
+    present: '出席',
+    unconfirmed: '未確認',
+    sick: '病欠',
+    accident: '事故欠',
+    late: '遅刻',
+    early: '早退',
+    suspended: '出席停止等'
+  };
+
+  const healthLabels = {
+    ok: '健康 ○',
+    watch: '要観察',
+    nurse: '保健室',
+    unwell: '体調不良',
+    other: 'その他'
+  };
+
+  const keys = ['present', 'sick', 'accident', 'late', 'early', 'suspended', 'unconfirmed'];
+
+  function normalizeCalendar(data, ym) {
+    if (data?.calendar && Object.keys(data.calendar).length) return data.calendar;
+
+    const calendar = {};
+    for (const date of data?.schoolDates || []) {
+      calendar[date] = { type: 'school', reason: '', source: 'server' };
+    }
+    if (Object.keys(calendar).length) return calendar;
+
+    const [year, monthNumber] = ym.split('-').map(Number);
+    const lastDay = new Date(year, monthNumber, 0).getDate();
+    for (let day = 1; day <= lastDay; day += 1) {
+      const dt = new Date(year, monthNumber - 1, day);
+      const iso = `${ym}-${String(day).padStart(2, '0')}`;
+      const isWeekend = dt.getDay() === 0 || dt.getDay() === 6;
+      calendar[iso] = {
+        type: isWeekend ? 'off' : 'school',
+        reason: isWeekend ? '土日' : '',
+        source: 'auto'
+      };
+    }
+    return calendar;
+  }
+
+  function summarize(data) {
+    const days = {};
+    for (const date of data.dates || []) days[date] = data.days[date] || [];
+    return window.AttendanceModel.summarizeMonth(days);
+  }
+
+  function healthSummary(data) {
+    const totals = { ok: 0, watch: 0, nurse: 0, unwell: 0, other: 0 };
+    for (const date of data.dates || []) {
+      for (const record of data.days[date] || []) {
+        const key = healthLabels[record.health] ? record.health : 'ok';
+        totals[key] += 1;
+      }
+    }
+    return totals;
+  }
+
+  function resetSummary() {
+    ['m-days', 'm-present', 'm-absent', 'm-sick', 'm-accident', 'm-late', 'm-early'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '0';
+    });
+    reason.innerHTML = '';
+    if (healthRoot) healthRoot.innerHTML = '';
+  }
+
+  function paint(data, ym) {
+    const calendar = normalizeCalendar(data, ym);
+    const dates = Object.keys(calendar).filter(date => calendar[date]?.type !== 'off').sort();
+    const confirmed = new Set(data.dates || []);
+    const summary = summarize(data);
+    const health = healthSummary(data);
+    const roster = data.roster || [];
+    const head = table.tHead || table.createTHead();
+    const body = table.tBodies[0] || table.createTBody();
+    const foot = table.tFoot || table.createTFoot();
+
+    head.innerHTML = '';
+    body.innerHTML = '';
+    foot.innerHTML = '';
+
+    if (!dates.length) {
+      body.innerHTML = '<tr><td class="empty">この月には授業日が設定されていません。</td></tr>';
+      resetSummary();
+      return;
+    }
+
+    const headerRow = document.createElement('tr');
+    const dayHeaders = dates.map(date => {
+      const dt = new Date(`${date}T12:00:00`);
+      const isConfirmed = confirmed.has(date);
+      const calendarItem = calendar[date] || {};
+      const special = calendarItem.type === 'special';
+      const source = calendarItem.source === 'c4th'
+        ? 'C4th'
+        : calendarItem.source === 'teacher'
+          ? '先生修正'
+          : '自動';
+      return `<th class="day-col${isConfirmed ? '' : ' pending'}" title="${isConfirmed ? '確認済み' : '未確認'} / ${calendarItem.reason || source}">${dt.getDate()}<br><small>${'日月火水木金土'[dt.getDay()]}${special ? '★' : ''}</small></th>`;
+    }).join('');
+
+    headerRow.innerHTML = '<th class="num-col">番号</th><th class="sticky name-col">氏名</th>'
+      + dayHeaders
+      + keys.map(key => `<th class="total-col">${labels[key]}</th>`).join('');
+    head.appendChild(headerRow);
+
+    const rowMap = new Map();
+    roster.forEach(student => rowMap.set(student.studentKey, { student, records: [] }));
+    (data.dates || []).forEach(date => {
+      (data.days[date] || []).forEach(record => {
+        if (rowMap.has(record.studentKey)) rowMap.get(record.studentKey).records.push({ date, ...record });
+      });
+    });
+
+    [...rowMap.values()]
+      .sort((a, b) => (a.student.number || 999) - (b.student.number || 999))
+      .forEach(({ student, records }) => {
+        const byDate = new Map(records.map(record => [record.date, record]));
+        const totals = window.AttendanceModel.summarizeStudent(records);
+        const row = document.createElement('tr');
+
+        const dayCells = dates.map(date => {
+          if (!confirmed.has(date)) return '<td class="status-unconfirmed" title="授業日・未確認">—</td>';
+          const record = byDate.get(date);
+          const key = record?.status || 'unconfirmed';
+          const healthLabel = healthLabels[record?.health] || '健康未設定';
+          return `<td class="status-${key}" title="${labels[key]} / ${healthLabel}">${symbols[key]}</td>`;
+        }).join('');
+
+        row.innerHTML = `<td>${student.number ?? ''}</td><td class="sticky name-col">${student.name || '氏名未登録'}</td>`
+          + dayCells
+          + keys.map(key => `<td class="total-col">${totals[key] || 0}</td>`).join('');
+        body.appendChild(row);
+      });
+
+    const presentRow = document.createElement('tr');
+    const presentCells = dates.map(date => {
+      const value = confirmed.has(date) ? (summary.dayTotals[date]?.present || 0) : '—';
+      return `<td>${value}</td>`;
+    }).join('');
+    presentRow.innerHTML = '<th colspan="2">日別 出席</th>'
+      + presentCells
+      + keys.map(key => `<td rowspan="2">${summary.grand[key] || 0}</td>`).join('');
+    foot.appendChild(presentRow);
+
+    const absentRow = document.createElement('tr');
+    const absentCells = dates.map(date => {
+      if (!confirmed.has(date)) return '<td>—</td>';
+      const totals = summary.dayTotals[date] || {};
+      return `<td title="病欠 ${totals.sick || 0}・事故欠 ${totals.accident || 0}">${totals.absence || 0}</td>`;
+    }).join('');
+    absentRow.innerHTML = '<th colspan="2">日別 欠席</th>' + absentCells;
+    foot.appendChild(absentRow);
+
+    document.getElementById('m-days').textContent = dates.length;
+    document.getElementById('m-present').textContent = summary.grand.present || 0;
+    document.getElementById('m-absent').textContent = summary.grand.absence || 0;
+    document.getElementById('m-sick').textContent = summary.grand.sick || 0;
+    document.getElementById('m-accident').textContent = summary.grand.accident || 0;
+    document.getElementById('m-late').textContent = summary.grand.late || 0;
+    document.getElementById('m-early').textContent = summary.grand.early || 0;
+
+    reason.innerHTML = `<article class="reason-main"><span>欠席 合計</span><strong>${summary.grand.absence || 0}</strong><small>病欠＋事故欠</small></article>`
+      + `<article><span>授業日</span><strong>${dates.length}</strong><small>学校暦基準</small></article>`
+      + `<article><span>確認済み</span><strong>${confirmed.size}</strong><small>日</small></article>`
+      + `<article><span>未確認授業日</span><strong>${dates.filter(date => !confirmed.has(date)).length}</strong><small>日</small></article>`
+      + keys.map(key => `<article><span>${labels[key]}</span><strong>${summary.grand[key] || 0}</strong></article>`).join('');
+
+    if (healthRoot) {
+      healthRoot.innerHTML = Object.entries(healthLabels).map(([key, label]) => {
+        const emphasis = ['watch', 'nurse', 'unwell'].includes(key) ? ' class="reason-main"' : '';
+        return `<article${emphasis}><span>${label}</span><strong>${health[key] || 0}</strong><small>延べ件数</small></article>`;
+      }).join('');
+    }
+  }
+
+  async function refresh() {
+    status.textContent = '集計しています…';
+    const classId = cls.value.trim() || '1-1';
+    const ym = month.value;
+
+    try {
+      const response = await fetch(`/api/classes/${encodeURIComponent(classId)}/attendance/month/${ym}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('attendance fetch failed');
+      const data = await response.json();
+      paint(data, ym);
+      const calendar = normalizeCalendar(data, ym);
+      const schoolDays = Object.keys(calendar).filter(date => calendar[date]?.type !== 'off').length;
+      status.textContent = `授業日 ${schoolDays}日 ／ 出席・健康確認済み ${data.dates?.length || 0}日`;
+    } catch (_) {
+      status.textContent = '校内LANサーバーに接続できません';
+    }
+  }
+
+  const now = new Date();
+  month.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  document.getElementById('ledger-reload').onclick = refresh;
+  cls.onchange = refresh;
+  month.onchange = refresh;
+  refresh();
+})();
