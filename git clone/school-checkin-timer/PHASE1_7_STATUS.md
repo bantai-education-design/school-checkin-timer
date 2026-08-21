@@ -1,6 +1,6 @@
 # 実装状況・完成前チェック
 
-更新日: 2026-08-19
+更新日: 2026-08-21
 
 ## 完了している主要実装
 - 時計・朝の会までのタイマー
@@ -39,17 +39,19 @@
 - 退避ブランチ `backup/ui-preview-b5fd3cf`
 - `npm run preflight` による導入前セルフチェック
 
-## 文書整備済み
-- `LAN_SETUP.md`: iPad / Androidブラウザ利用、PWA/MDM、Firewall、保存先、C4th、学校導入前確認
-- `QA_CHECKLIST.md`: 現行機能を17区分で最終確認
-- PR #1: 現在の完成前状態と残工程を記録
+## 文書・統合作業の現在地
+- `LAN_SETUP.md`: iPad / Androidブラウザ利用、PWA/MDM、Firewall、保存先、C4th、学校導入前確認を整備済み
+- `QA_CHECKLIST.md`: 現行機能を17区分で最終確認するチェック項目を整備済み
+- PR #1: 朝チェックイン、担任ダッシュボード、出席・健康、学校暦、C4th取込基盤、Smoke / Visual Checkを `main` へ統合済み
+- PR #2: `.github/workflows/smoke.yml` の `push.branches` に `main` を追加し、今後の `main` 更新でも preflight / Smoke / Visual Check が走る設定へ更新済み
+- 現在の `main` 基準コミット: `c9d67d2b7468e4cb53195993dbeda1328c9df081`
 
 ## 現在の残工程
-1. GitHub Actions の最新 Smoke / Visual Check が実行開始・完了することを確認
+1. `main` で実行される最新 GitHub Actions の preflight / Smoke / Visual Check の結果確認
 2. 失敗があれば該当箇所だけ局所修正して再実行
 3. 生成スクリーンショットで主要画面を最終目視
-4. 実装画面を最終確認
-5. CI成功後にPR #1のDraft解除・main統合判断
+4. README / LAN_SETUP / QA_CHECKLIST / ATTENDANCE_DESIGN / IMPLEMENTATION_PLAN の最終整合確認
+5. 開発版完成判定と、学校実機でしか確認できない項目を明確に分離
 
 ## 学校実機でのみ確認する項目
 開発版の完成判定とは分離し、導入前確認として扱う。
@@ -63,4 +65,6 @@
 - C4th実CSVの列対応確認（実データを外部送信しない）
 
 ## 完成判定の方針
-新機能追加は原則停止し、正常な箇所は触らない。以後は「確認 → 必要箇所だけ局所修正 → 再確認」で締める。CI未完了のままDraft解除・マージは行わない。
+新機能追加は原則停止し、正常な箇所は触らない。以後は「確認 → 必要箇所だけ局所修正 → 再確認」で締める。
+
+PR #1 / #2 はすでに `main` へ統合済みのため、今後は `main` のCI結果とスクリーンショット目視を完成判定の基準にする。学校LAN、MDM、実C4th CSVなど実機依存項目は、コード未完成とは分けて導入前確認として扱う。
