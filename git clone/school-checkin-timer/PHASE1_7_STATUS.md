@@ -1,4 +1,4 @@
-# 実装状況・完成前チェック
+# 実装状況・完成状態
 
 更新日: 2026-08-21
 
@@ -42,16 +42,31 @@
 ## 文書・統合作業の現在地
 - `LAN_SETUP.md`: iPad / Androidブラウザ利用、PWA/MDM、Firewall、保存先、C4th、学校導入前確認を整備済み
 - `QA_CHECKLIST.md`: 現行機能を17区分で最終確認するチェック項目を整備済み
-- PR #1: 朝チェックイン、担任ダッシュボード、出席・健康、学校暦、C4th取込基盤、Smoke / Visual Checkを `main` へ統合済み
-- PR #2: `.github/workflows/smoke.yml` の `push.branches` に `main` を追加し、今後の `main` 更新でも preflight / Smoke / Visual Check が走る設定へ更新済み
-- 現在の `main` 基準コミット: `c9d67d2b7468e4cb53195993dbeda1328c9df081`
+- `ATTENDANCE_DESIGN.md`: 出席・健康・心の天気の分離、集計、学校暦、C4th受け渡し方針を整備済み
+- `IMPLEMENTATION_PLAN.md`: 開発版完成状態と学校実機確認を分離して記録
+- PR #1: 主要実装を `main` へ統合済み
+- PR #2: `main` push時にも preflight / Smoke / Visual Check が走る設定へ更新済み
+- PR #3: 完成工程の状態文書を、統合後の実態に合わせて更新済み
+
+固定コミットIDを「現在地」として本文へ持たせると、文書自身の更新で直ちに古くなるため、状態確認は `main` とPR履歴を基準にする。
+
+## 開発環境での最終確認結果
+2026-08-21のGitHub Actions run #320 で以下を確認済み。
+
+- preflight: success
+- LAN server起動・health: success
+- Smoke Test: success
+- Responsive Visual Check 35パターン: success
+- Visual screenshots artifact upload: success
+
+生成された35枚も目視確認済み。1366 / 1024 / 768 / 375pxの主要画面で、新たな操作不能・横はみ出し・実要素重なりは確認していない。
+
+低学年の広幅表示は、大きなタスクカードを維持するため5項目時にタスク欄を内部スクロールとする。375pxでは内部スクロールを解除し、5項目を縦方向に連続表示する現行設計を維持する。
 
 ## 現在の残工程
-1. `main` で実行される最新 GitHub Actions の preflight / Smoke / Visual Check の結果確認
-2. 失敗があれば該当箇所だけ局所修正して再実行
-3. 生成スクリーンショットで主要画面を最終目視
-4. README / LAN_SETUP / QA_CHECKLIST / ATTENDANCE_DESIGN / IMPLEMENTATION_PLAN の最終整合確認
-5. 開発版完成判定と、学校実機でしか確認できない項目を明確に分離
+開発版の主要実装・自動確認・スクリーンショット目視は完了した。以後、現行版について残るのは主に学校実機での導入前確認である。
+
+コード変更が発生した場合だけ、対象箇所を局所修正し、preflight / Smoke / Visual Checkを再実行する。
 
 ## 学校実機でのみ確認する項目
 開発版の完成判定とは分離し、導入前確認として扱う。
@@ -64,7 +79,15 @@
 - 学校MDM / Web Clip / ホーム画面配布方針
 - C4th実CSVの列対応確認（実データを外部送信しない）
 
-## 完成判定の方針
-新機能追加は原則停止し、正常な箇所は触らない。以後は「確認 → 必要箇所だけ局所修正 → 再確認」で締める。
+## 将来拡張として別工程にする項目
+- C4thへ戻すための標準CSV出力の仕上げ
+- C4th正式テンプレート入手後の専用形式出力
+- UTF-8 BOM / Shift-JIS 出力切替
+- 学校様式に合わせたCSV / Excel / PDF帳票出力
+- PWA / MDM / Web Clip等の高度な配布・起動支援
+- ネストしたリポジトリ配置の整理
 
-PR #1 / #2 はすでに `main` へ統合済みのため、今後は `main` のCI結果とスクリーンショット目視を完成判定の基準にする。学校LAN、MDM、実C4th CSVなど実機依存項目は、コード未完成とは分けて導入前確認として扱う。
+## 完成判定の方針
+現行開発版は主要機能と開発環境QAを完了した状態として扱う。
+
+新機能追加は現行完成版へ直接積み上げず、必要性を整理して別工程にする。正常な箇所は触らず、「確認 → 必要箇所だけ局所修正 → 再確認」を保守の基本とする。学校LAN、MDM、実C4th CSVなど実機依存項目は、コード未完成とは分けて導入前確認として扱う。
